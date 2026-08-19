@@ -347,8 +347,9 @@ a:hover {
 .shots {
   display: grid;
   gap: 20px;
-  /* 4 枠がちょうど 1 行に並ぶ幅。増減させるときは wrap 幅 (880px) と合わせて調整する */
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  /* 5 枠がちょうど 1 行に並ぶ幅。増減させるときは wrap 幅 (880px) と合わせて調整する
+     (880 - gap 20px x 4 = 800 → 5 列で 160px) */
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
 .shot {
