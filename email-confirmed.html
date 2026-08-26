@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>メールアドレスの確認｜ミトレル (Meetrail)</title>
+    <meta name="robots" content="noindex" />
+    <meta
+      name="description"
+      content="ミトレル (Meetrail) のメールアドレス確認ページ。アプリから送信した確認メールのリンクを開いたときに表示されます。"
+    />
+    <link rel="icon" href="assets/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap site-header__inner">
+        <a class="site-header__brand" href="index.html">
+          <img src="assets/icon.png" alt="" />
+          <span>ミトレル</span>
+        </a>
+        <nav class="site-nav">
+          <a href="index.html">ホーム</a>
+          <a href="guide.html">使い方</a>
+          <a href="faq.html">よくある質問</a>
+          <a href="support.html">お問い合わせ</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="doc">
+      <div class="wrap wrap--narrow">
+        <!-- 静的な文面は中立にしておく。確認自体はリンクを踏んだ時点で Supabase 側が
+             完了させているので、JS が無効でもこの文面で意味が通る。
+             成功・失敗の確定は下の script が行う。 -->
+        <h1 class="doc__title" id="title">メールアドレスの確認</h1>
+        <p class="doc__meta" id="lead">
+          アプリに戻って、連携が完了しているかご確認ください。
+        </p>
+        <div id="detail"></div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <nav class="site-footer__nav">
+          <a href="index.html">ホーム</a>
+          <a href="guide.html">使い方</a>
+          <a href="faq.html">よくある質問</a>
+          <a href="support.html">お問い合わせ</a>
+          <a href="privacy.html">プライバシーポリシー</a>
+          <a href="terms.html">利用規約</a>
+          <a href="delete-account.html">データの削除</a>
+          <a href="changelog.html">更新履歴</a>
+        </nav>
+        <p class="site-footer__disclaimer">
+          ミトレル (Meetrail) はファンが個人で開発している非公式アプリです。日向坂46
+          およびその運営・関係各社とは一切関係がありません。
+          アプリ内で用いるメンバー名・作品名等は、対象を示す目的で表示しています。
+        </p>
+        <p class="site-footer__copy">© 2026 世界新奈</p>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        // Supabase (GoTrue) は確認処理を済ませたうえで、結果を URL に載せてここへ飛ばす。
+        // 成功はフラグメントに access_token、失敗は error が入る。
+        // バージョンによってクエリ側に載ることもあるので両方見る。
+        var fromHash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+        var fromQuery = new URLSearchParams(window.location.search);
+        var pick = function (key) {
+          return fromHash.get(key) || fromQuery.get(key);
+        };
+
+        var hasSession = pick('access_token') !== null;
+        var error = pick('error_description') || pick('error');
+
+        // フラグメントにはアクセストークンとリフレッシュトークンが載っている。
+        // 履歴・ブックマーク・共有に残さないよう、読み終えたら消す。
+        if (window.location.hash || window.location.search) {
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+
+        var title = document.getElementById('title');
+        var lead = document.getElementById('lead');
+        var detail = document.getElementById('detail');
+
+        if (hasSession) {
+          title.textContent = 'メールアドレスの確認が完了しました';
+          lead.textContent = 'このページを閉じて、ミトレルのアプリに戻ってください。';
+          detail.innerHTML =
+            '<p>アプリの「マイページ &gt; アカウント」に、連携したメールアドレスが表示されます。' +
+            'すぐに反映されないときは、アプリを一度閉じてから開き直してください。</p>' +
+            '<p style="margin-top: 14px">次に機種変更やアプリの入れ直しをしたときは、' +
+            'ログイン画面でこのメールアドレスを入力すると、届いた 6 桁のコードで' +
+            '元のアカウントに戻れます。</p>';
+        } else if (error) {
+          title.textContent = 'リンクを確認できませんでした';
+          lead.textContent =
+            'リンクの有効期限が切れているか、すでに使用済みの可能性があります。';
+          detail.innerHTML =
+            '<p>お手数ですが、アプリの「マイページ &gt; アカウント」から' +
+            'もう一度メールアドレスを送信してください。確認リンクの有効期限は 1 時間です。</p>' +
+            '<p style="margin-top: 14px">解決しないときは ' +
+            '<a href="support.html">お問い合わせ</a> からご連絡ください。</p>';
+        } else {
+          // リンク経由でなく直接開かれた場合 (= ブックマーク等)
+          detail.innerHTML =
+            '<p>このページは、アプリから送信した確認メールのリンクを開いたときに表示されます。</p>' +
+            '<p style="margin-top: 14px">アプリの「マイページ &gt; アカウント」から' +
+            'メールアドレスを登録すると、確認メールが届きます。</p>';
+        }
+      })();
+    </script>
+  </body>
+</html>
