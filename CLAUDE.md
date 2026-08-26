@@ -34,6 +34,7 @@ grep -l "site-footer__disclaimer" *.html   # 対象ファイルの確認
 
 現在ナビに出しているのは 4 ページ (ホーム / 使い方 / よくある質問 / お問い合わせ)。
 法務系 4 ページはフッターからのみ辿れる。ページを増やしたらフッターのリンクにも足すこと。
+フッターの末尾だけ外部リンク (「開発に参加する」= [sekai-nina/meetrail](https://github.com/sekai-nina/meetrail) の開発者向けページ) を置いている。
 
 現在のページで開いているものには `aria-current="page"` を付ける (下線が付く)。
 
