@@ -6,7 +6,7 @@
     <title>ミトレル (Meetrail)｜日向坂46 のミーグリを記録・計画するファンアプリ</title>
     <meta
       name="description"
-      content="ミトレルは、日向坂46 のミート&グリート (ミーグリ) の申込・当落・レポをまとめて残せる非公式ファンアプリです。何枚投げるかの計画から、話したいことの準備、当日の振り返りまで。"
+      content="ミトレルは、日向坂46 のミート&グリート (ミーグリ) の申込・当落・レポ・レターをまとめて残せる非公式ファンアプリです。何枚投げるかの計画から、話したいことの準備、当日の振り返りまで。"
     />
     <link rel="icon" href="assets/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -49,7 +49,7 @@
           <h1 class="hero__title">ミトレル</h1>
           <p class="hero__tagline">推しと会う予定と記録を、<br />ひとつの道筋に。</p>
           <p class="hero__lead">
-            日向坂46 のミート&amp;グリート (ミーグリ) の申込・当落・レポを、
+            日向坂46 のミート&amp;グリート (ミーグリ) の申込・当落・レポ・レターを、
             ひとつのアプリにまとめて残せます。
           </p>
           <div class="hero__actions">
@@ -75,19 +75,28 @@
               <h3 class="usecase__when">誰に何枚投げるか決めたいとき</h3>
               <p class="usecase__body">
                 メンバー × 開催日 × 部のマス目に、投げる枚数を置いていきます。
-                置いた瞬間に「今シングルでいくらになるか」も一緒に出るので、
+                「今シングルでいくらになるか」も一緒に見られるので、
                 予算と相談しながら組み替えられます。
               </p>
-              <span class="usecase__feature">計画タブ</span>
+              <span class="usecase__feature">日程タブ</span>
             </article>
 
             <article class="usecase">
               <h3 class="usecase__when">実際に申込フォームへ入力するとき</h3>
               <p class="usecase__body">
                 立てた計画を「1回目はこれ、2回目はこれ」と申込回ごとに自動で割り振ります。
-                1 画面に 1 回ぶんだけ出るので、フォームと見比べながら順に消し込めます。
+                フォームと見比べながら入力し、終わった回から「申込済み」にして消し込めます。
               </p>
               <span class="usecase__feature">申込みプラン</span>
+            </article>
+
+            <article class="usecase">
+              <h3 class="usecase__when">応募券のシリアルをたくさん入力するとき</h3>
+              <p class="usecase__body">
+                応募券を撮った写真からシリアルを読み取り、公式の応募ページの入力欄に入れるのを手伝います。
+                読み取りは端末の中で行い、シリアルを外に送ることはありません (iOS のみ)。
+              </p>
+              <span class="usecase__feature">シリアル入力補助</span>
             </article>
 
             <article class="usecase">
@@ -95,6 +104,8 @@
               <p class="usecase__body">
                 発表時刻を過ぎると、記録がまだの受付次をホームでお知らせします。
                 当選・落選をまとめて入力すると、当選表がその場で埋まります。
+                iPhone なら forTUNE のページを共有するだけで取り込むこともできます。
+                支払いがまだの当選も、期限と一緒にお知らせします。
               </p>
               <span class="usecase__feature">当落記録</span>
             </article>
@@ -105,7 +116,7 @@
                 ミトレルを使っている人たちの記録から、どのあたりの枠が混みやすいかの目安が見えます。
                 集計は匿名で、誰が何枚当てたかが他の人に見えることはありません。
               </p>
-              <span class="usecase__feature">混雑表・完売表</span>
+              <span class="usecase__feature">完売表</span>
             </article>
 
             <article class="usecase">
@@ -113,9 +124,9 @@
               <p class="usecase__body">
                 思いついた話題をメンバーごとにメモしておき、開催日が近づいたら
                 「第1部ではこれを話す」と部ごとに割り当てます。
-                話せたらチェックを付けると、次に持ち越すネタが残ります。
+                当日は一日のしおりで確認し、話せたら丸を付けると、次に持ち越すネタが残ります。
               </p>
-              <span class="usecase__feature">メモ・話題計画</span>
+              <span class="usecase__feature">メモ・しおり</span>
             </article>
 
             <article class="usecase">
@@ -123,9 +134,18 @@
               <p class="usecase__body">
                 交わした会話を吹き出しで並べて、そのまま残せます。
                 文字の色や大きさを変えて印象的なひと言を強調したり、
-                画像に書き出して共有することもできます。
+                写真を添えたり、画像に書き出して共有したりもできます。
               </p>
               <span class="usecase__feature">レポ</span>
+            </article>
+
+            <article class="usecase">
+              <h3 class="usecase__when">メッセージアプリにレターを送る前</h3>
+              <p class="usecase__body">
+                その日のレポを開いて読み返しながら、レターの文面を下書きできます。
+                文字数を数えながら書けて、送ったかどうかも記録できます。
+              </p>
+              <span class="usecase__feature">レター</span>
             </article>
 
             <article class="usecase">
@@ -141,9 +161,9 @@
               <h3 class="usecase__when">これまでどれだけ会えたか振り返りたいとき</h3>
               <p class="usecase__body">
                 シングルをまたいだ記録を「話した時間」として合計します。
-                アプリを使う前のシングルぶんは、回数を手で入れて足すこともできます。
+                アプリを使う前のシングルぶんは、枚数を手で入れて足すこともできます。
               </p>
-              <span class="usecase__feature">ミーグリの記録</span>
+              <span class="usecase__feature">これまでのミーグリ</span>
             </article>
           </div>
         </div>
@@ -158,15 +178,15 @@
           <div class="shots">
             <figure class="shot">
               <div class="shot__frame">
-                <img src="assets/shots/home.png" alt="ホーム画面。次のミーグリと当選記録が並ぶ" />
+                <img src="assets/shots/home.png" alt="ホーム画面。今のシングルと次のミーグリが並ぶ" />
               </div>
               <figcaption class="shot__caption">ホーム — 次のミーグリと当選記録</figcaption>
             </figure>
             <figure class="shot">
               <div class="shot__frame">
-                <img src="assets/shots/plan.png" alt="計画画面。メンバーと部のマトリックスに枚数を入れる" />
+                <img src="assets/shots/plan.png" alt="日程タブ。開催日と部の表に枚数を入れる" />
               </div>
-              <figcaption class="shot__caption">計画 — 何枚投げるかを組む</figcaption>
+              <figcaption class="shot__caption">日程 — 何枚投げるかを組む</figcaption>
             </figure>
             <figure class="shot">
               <div class="shot__frame">
@@ -176,15 +196,21 @@
             </figure>
             <figure class="shot">
               <div class="shot__frame">
-                <img src="assets/shots/report.png" alt="記録画面。レポとメモが時系列に並ぶ" />
+                <img src="assets/shots/report.png" alt="言葉タブ。メモ・レポ・レターを種類ごとに並べる" />
               </div>
-              <figcaption class="shot__caption">記録 — レポとメモ</figcaption>
+              <figcaption class="shot__caption">言葉 — メモ・レポ・レター</figcaption>
             </figure>
             <figure class="shot">
               <div class="shot__frame">
                 <img src="assets/shots/talk-plan.png" alt="一日のしおり。部ごとに話したいことを割り当てる" />
               </div>
               <figcaption class="shot__caption">しおり — 部ごとの話題を準備</figcaption>
+            </figure>
+            <figure class="shot">
+              <div class="shot__frame">
+                <img src="assets/shots/mypage.png" alt="マイページ。これまでに話した時間をシングルごとの棒グラフで表す" />
+              </div>
+              <figcaption class="shot__caption">マイページ — これまでのミーグリ</figcaption>
             </figure>
           </div>
         </div>
@@ -200,7 +226,7 @@
 
           <ul class="feature-list">
             <li>
-              <strong>レポとメモは自分だけのもの</strong>
+              <strong>メモ・レポ・レターは自分だけのもの</strong>
               本文が他のユーザーに公開されることはありません。共有する場合も、自分で画像を書き出して
               自分で投稿する形だけです。
             </li>
@@ -213,8 +239,12 @@
               広告 SDK も解析ツールも入れていません。行動履歴を追跡することはありません。
             </li>
             <li>
+              <strong>写真は端末の中だけ</strong>
+              添付した写真・動画や、読み取った応募券の画像はサーバーに送らず、端末の中にだけ保存します。
+            </li>
+            <li>
               <strong>いつでも全部消せる</strong>
-              アプリの中からアカウントを削除すれば、記録・計画・レポ・設定がまとめて消えます。
+              アプリの中からアカウントを削除すれば、記録・計画・レポ・レター・設定がまとめて消えます。
             </li>
           </ul>
 
