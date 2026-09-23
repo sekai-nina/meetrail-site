@@ -31,7 +31,7 @@
 | `delete-account.html` | データの削除について | Google Play のデータ削除 URL 要件にも対応 |
 | `changelog.html` | 更新履歴 | 公開後に追記していく |
 | `assets/style.css` | 共通スタイル | 色トークンはアプリの確定トーンを移植 |
-| `assets/shots/` | スクリーンショット置き場 | 現在は空 (LP は枠だけのプレースホルダ) |
+| `assets/shots/` | スクリーンショット置き場 | LP の「画面」に使う 6 枚。アプリ側 `scripts/appstore/capture-all.sh` の撮影から 600px 幅に縮小 |
 
 ビルド不要の素の HTML。`main` ブランチの root をそのまま GitHub Pages で配信する。
 
