@@ -347,12 +347,15 @@ a:hover {
 .shots {
   display: grid;
   gap: 20px;
-  /* 5 枠がちょうど 1 行に並ぶ幅。増減させるときは wrap 幅 (880px) と合わせて調整する
-     (880 - gap 20px x 4 = 800 → 5 列で 160px) */
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  /* 6 枠を 3 列 x 2 段に並べる。wrap 幅 880px で 4 列にならない最小幅
+     (4 列には 220 x 4 + 20 x 3 = 940px 要る)。スマホ幅 (343px) では 2 列 x 3 段 */
+  grid-template-columns: repeat(auto-fit, minmax(150px, 220px));
+  justify-content: center;
 }
 
 .shot {
+  /* <figure> の既定の左右 40px を消す (残すと枠が列幅の半分ほどに縮む) */
+  margin: 0;
   text-align: center;
 }
 
