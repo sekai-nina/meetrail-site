@@ -61,7 +61,7 @@ python3 -m http.server 8000
 - [ ] `index.html` の「まもなく公開します」セクションを、公開後の文面に書き換える
 - [ ] `assets/shots/` にスクリーンショットを入れ、`index.html` の `.shot__frame` の中身を `<img>` に差し替える
 - [ ] `changelog.html` に初回リリースの項目を追加する
-- [ ] `faq.html` の Android 版に関する記述を、実際の方針に合わせて更新する
+- [x] `faq.html` の Android 版に関する記述を、実際の方針に合わせて更新する
 
 ## デザイン
 
