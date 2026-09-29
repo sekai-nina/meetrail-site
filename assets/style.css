@@ -683,3 +683,30 @@ a:hover {
     padding-left: 44px;
   }
 }
+
+/* ---------------- ストアバッジ (App Store / Google Play) ---------------- */
+
+/* 公式バッジは画像そのものがボタンなので、枠や背景を足さない。高さだけ揃える */
+.store-badges {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+.store-badges + .hero__actions {
+  margin-top: 16px;
+}
+
+.store-badge {
+  display: inline-block;
+  line-height: 0;
+}
+
+.store-badge img {
+  display: block;
+  height: 48px;
+  width: auto;
+}
