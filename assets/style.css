@@ -866,3 +866,25 @@ a:hover {
   .chart__label { display: none; }
   .figure { padding: 12px 10px 10px; }
 }
+
+/* 目次 (sellout-table.html)。リンクで飛んだ見出しが固定ヘッダー (60px) の裏に隠れないよう上に余白を取る */
+.doc h2[id] {
+  scroll-margin-top: 76px;
+}
+
+.doc .toc-box {
+  margin: 24px 0 8px;
+}
+
+.doc .toc-box p {
+  margin: 0 0 4px;
+}
+
+.doc ol.toc {
+  margin: 0;
+}
+
+.doc ol.toc li {
+  margin-bottom: 2px;
+  font-size: 14px;
+}
