@@ -89,7 +89,8 @@ grep -l "site-footer__disclaimer" *.html   # 対象ファイルの確認
 - 添付の写真とアイコンの写真は、**連携済みのユーザーに限り**非公開バケット `record-images` にも置く (アプリ 1.5.2 / #1264。縮小 + Exif なしの JPEG、退会で削除)。ゲストの写真、動画、下書き、シリアル入力補助のデータは**端末内のみ**
 - ご意見・ご要望 (#1298) は本文に加え、アプリの版・OS の種類と版・機種名を送る (機種名と OS の版は 1.5.2 / #1329 から。端末の設定名は送らない)
 - 通知はローカル通知のみ (プッシュトークンを送らない)
-- 外部通信: Supabase / EAS Update / Sentry / Amplitude / Apple (サインイン、iTunes Search API でジャケットと最新版の確認) / Google (サインイン)
+- **レポを共有する前の AI チェック** (アプリ本体 #2101 / PR #2125): 共有シートを開くと、感想とやりとりの文章と話者の区別を Edge Function `check-repo-share` 経由で OpenAI (Decisions) へ送る。既定はオンで、マイページの設定 (`user_settings.repo_share_ai_check`) でオフにできる。メンバー・日程・タイトル・表示名・写真・user_id は送らない。文章と答えは DB にもログにも残さず、残すのは 1 人 1 日の回数だけ (`repo_share_check_daily_counts`、8 日ぶん、退会で連鎖削除)。ゲストも対象
+- 外部通信: Supabase / EAS Update / Sentry / Amplitude / OpenAI (共有前の AI チェック、Supabase の Edge Function 経由) / Apple (サインイン、iTunes Search API でジャケットと最新版の確認) / Google (サインイン)
 - アカウント削除はアプリ内から可能で、削除時にサーバーの全データが連鎖削除される
 
 ## 運営者情報 (全ページ共通)
