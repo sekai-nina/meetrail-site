@@ -36,12 +36,18 @@
   if (!isValid) { byId('finance-status').textContent = '収支を表示できませんでした。公開データを確認しています。'; return; }
   byId('finance-support').textContent = money(total.supportYen);
   byId('finance-actual').textContent = money(total.actualExpenseYen);
-  byId('finance-estimated').textContent = money(total.estimatedExpenseYen);
+  // 概算が無い (= 0 円) ときは行ごと出さない (= 「AI 代は 0 円」と読ませない)
+  if (total.estimatedExpenseYen > 0) {
+    byId('finance-estimated').textContent = money(total.estimatedExpenseYen);
+    byId('finance-estimated-row').hidden = false;
+    byId('finance-estimated-note').hidden = false;
+  }
   const balance = total.supportYen - total.actualExpenseYen - total.estimatedExpenseYen;
   byId('finance-balance').textContent = balance < 0 ? `${money(-balance)}の赤字` : money(balance);
   for (const row of [...data.months].sort((a, b) => b.month.localeCompare(a.month))) {
     const item = document.createElement('p');
-    item.textContent = `${yearMonth(row.month)}：応援金 ${money(row.supportYen)} / 実費 ${money(row.actualExpenseYen)} / 概算 ${money(row.estimatedExpenseYen)}`;
+    const estimated = row.estimatedExpenseYen > 0 ? ` / 概算 ${money(row.estimatedExpenseYen)}` : '';
+    item.textContent = `${yearMonth(row.month)}：応援金 ${money(row.supportYen)} / 実費 ${money(row.actualExpenseYen)}${estimated}`;
     byId('finance-months').append(item);
   }
   byId('finance-updated').textContent = data.updatedAt ? `更新日 ${date(data.updatedAt)}` : '';
