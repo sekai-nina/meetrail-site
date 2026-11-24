@@ -24,7 +24,8 @@ test('公開済みの支援額・実費・概算と差額を表示する', async
   assert.equal(els['support-payment-wrap'].hidden, false);
   assert.equal(els['finance-content'].hidden, false);
   assert.equal(els['finance-balance'].textContent, '1,500円の赤字');
-  assert.match(els['finance-months'].children[0].textContent, /2026-11/);
+  assert.match(els['finance-months'].children[0].textContent, /2026年11月/);
+  assert.match(els['finance-updated'].textContent, /2026年11月23日/);
 });
 
 test('不正な支援先やデータは表示せずエラーにする', async () => {
@@ -32,4 +33,10 @@ test('不正な支援先やデータは表示せずエラーにする', async ()
   assert.equal(els['support-payment-wrap'], undefined);
   assert.match(els['finance-status'].textContent, /読み込めません/);
   assert.match(els['support-payment-status'].textContent, /確認できません/);
+});
+
+test('月のデータだけが不正なら収支だけエラーにし、支援ボタンは残す', async () => {
+  const els = await render({ version: 1, updatedAt: null, paymentUrl: 'https://buy.stripe.com/example', months: [{ month: '2026-11', supportYen: 1.5, actualExpenseYen: 0, estimatedExpenseYen: 0 }] });
+  assert.equal(els['support-payment-wrap'].hidden, false);
+  assert.match(els['finance-status'].textContent, /表示できません/);
 });
