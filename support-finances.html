@@ -15,7 +15,7 @@
       href="https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="assets/style.css?v=5" />
+    <link rel="stylesheet" href="assets/style.css?v=6" />
   </head>
   <body>
     <header class="site-header">
@@ -36,6 +36,13 @@
     <main class="doc"><div class="wrap">
       <h1 class="doc__title">ミトレルを応援する</h1>
       <p>ミトレルのすべての機能は無料です。応援は任意で、支払いの有無による機能やサポートの違いはありません。</p>
+      <div id="coverage" class="coverage" hidden>
+        <p id="coverage-label" class="coverage__label"></p>
+        <p id="coverage-percent" class="coverage__percent"></p>
+        <div id="coverage-bar" class="coverage__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><span id="coverage-fill" class="coverage__fill"></span></div>
+        <p id="coverage-amounts" class="coverage__amounts"></p>
+        <p id="coverage-remaining" class="coverage__note"></p>
+      </div>
       <p id="support-payment-status">応援金の受付は準備中です。</p>
       <p id="support-payment-wrap" hidden><a id="support-payment" class="btn btn--primary">応援する</a></p>
       <h2>開発・運営の収支</h2>
