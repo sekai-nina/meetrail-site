@@ -87,3 +87,20 @@ python3 -m http.server 8000
 ---
 
 ミトレル (Meetrail) はファンが個人で開発している非公式アプリです。日向坂46 およびその運営・関係各社とは一切関係がありません。
+
+## 応援金と開発・運営費
+
+`support-finances.json` が公式サイトと Web 版ミトレルの共通データ。月ごとに確認済みの数値を手入力する。金額は円の整数。未入力の月を 0 円として追加しない。
+
+- `version`: 形式の版。現在は `1`。
+- `updatedAt`: 最終更新日（`YYYY-MM-DD`）、未公開なら `null`。
+- `paymentUrl`: 承認済みの Stripe Payment Links（`https://buy.stripe.com/…` / `https://donate.stripe.com/…`）。未設定なら `null`。
+- `months`: 月ごとの `month`（`YYYY-MM`）、`supportYen`（応援金）、`actualExpenseYen`（実費）、`estimatedExpenseYen`（利用割合から算出した共通費などの概算）。同月は一度だけ登録する。
+
+例（説明用。公開ファイルには実際の確認済みの金額だけを入れる）:
+
+```json
+{"version":1,"updatedAt":"2026-11-23","paymentUrl":null,"months":[{"month":"2026-11","supportYen":1000,"actualExpenseYen":2000,"estimatedExpenseYen":500}]}
+```
+
+実費と概算を混同しない。支援者や開発者の個人情報は記入しない。決済手数料・返金や費用の対象範囲は公開前に決め、集計を揃える。Stripe の受取主体・受付可否を確認できるまではリンクを設定しない。
