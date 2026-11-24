@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ミトレルを応援する｜ミトレル (Meetrail)</title>
+    <meta
+      name="description"
+      content="ミトレル (Meetrail) は全機能無料です。任意の応援金の受付と、開発・運営の収支を公開しています。"
+    />
+    <link rel="icon" href="assets/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/style.css?v=5" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap site-header__inner">
+        <a class="site-header__brand" href="index.html">
+          <img src="assets/icon.png" alt="" />
+          <span>ミトレル</span>
+        </a>
+        <nav class="site-nav">
+          <a href="index.html">ホーム</a>
+          <a href="guide.html">使い方</a>
+          <a href="faq.html">よくある質問</a>
+          <a href="support.html">お問い合わせ</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="doc"><div class="wrap">
+      <h1 class="doc__title">ミトレルを応援する</h1>
+      <p>ミトレルのすべての機能は無料です。応援は任意で、支払いの有無による機能やサポートの違いはありません。</p>
+      <p id="support-payment-status">応援金の受付は準備中です。</p>
+      <p id="support-payment-wrap" hidden><a id="support-payment" class="btn btn--primary">応援する</a></p>
+      <h2>開発・運営の収支</h2>
+      <p id="finance-status" role="status">読み込み中です。</p>
+      <div id="finance-content" hidden>
+        <p>掲載した月の合計</p>
+        <table class="finance-table"><tbody>
+          <tr><th>応援金</th><td id="finance-support"></td></tr>
+          <tr><th>開発・運営費（実費）</th><td id="finance-actual"></td></tr>
+          <tr><th>開発・運営費（概算）</th><td id="finance-estimated"></td></tr>
+          <tr><th>差額</th><td id="finance-balance"></td></tr>
+        </tbody></table>
+        <p>共通の AI 開発費などは利用割合に基づく概算を含みます。一部の費用が含まれない場合があります。</p>
+        <div id="finance-months"></div>
+        <p id="finance-updated"></p>
+      </div>
+    </div></main>
+    <script src="assets/support-finances.js" defer></script>
+    <footer class="site-footer">
+      <div class="wrap">
+        <nav class="site-footer__nav">
+          <a href="index.html">ホーム</a>
+          <a href="guide.html">使い方</a>
+          <a href="faq.html">よくある質問</a>
+          <a href="sellout-table.html">完売表のしくみ</a>
+          <a href="support.html">お問い合わせ</a>
+          <a href="support-finances.html">ミトレルを応援する</a>
+          <a href="privacy.html">プライバシーポリシー</a>
+          <a href="terms.html">利用規約</a>
+          <a href="delete-account.html">データの削除</a>
+          <a href="changelog.html">更新履歴</a>
+          <a href="https://github.com/sekai-nina/meetrail">開発に参加する</a>
+        </nav>
+        <p class="site-footer__disclaimer">
+          ミトレル (Meetrail) はファンが個人で開発している非公式アプリです。日向坂46
+          およびその運営・関係各社とは一切関係がありません。
+          アプリ内で用いるメンバー名・作品名等は、対象を示す目的で表示しています。
+        </p>
+        <p class="site-footer__copy">© 2026 世界新奈</p>
+      </div>
+    </footer>
+  </body>
+</html>

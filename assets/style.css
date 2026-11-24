@@ -888,3 +888,5 @@ a:hover {
   margin-bottom: 2px;
   font-size: 14px;
 }
+
+.finance-table td { text-align: right; font-variant-numeric: tabular-nums; }
