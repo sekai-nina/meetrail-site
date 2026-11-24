@@ -1,6 +1,13 @@
 {
   "version": 1,
-  "updatedAt": null,
+  "updatedAt": "2026-11-25",
   "paymentUrl": "https://buy.stripe.com/5kQ9AV4MA2ElfUPgKh5os0g",
-  "months": []
+  "months": [
+    {
+      "month": "2026-11",
+      "supportYen": 0,
+      "actualExpenseYen": 10431,
+      "estimatedExpenseYen": 0
+    }
+  ]
 }

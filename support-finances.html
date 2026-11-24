@@ -45,10 +45,10 @@
         <table class="finance-table"><tbody>
           <tr><th>応援金</th><td id="finance-support"></td></tr>
           <tr><th>開発・運営費（実費）</th><td id="finance-actual"></td></tr>
-          <tr><th>開発・運営費（概算）</th><td id="finance-estimated"></td></tr>
+          <tr id="finance-estimated-row" hidden><th>開発・運営費（概算）</th><td id="finance-estimated"></td></tr>
           <tr><th>差額</th><td id="finance-balance"></td></tr>
         </tbody></table>
-        <p>共通の AI 開発費などは利用割合に基づく概算を含みます。一部の費用が含まれない場合があります。</p>
+        <p>開発・運営費は、サーバーや自動テストなど請求額が分かる費用です。開発者の AI 利用料は含みません。<span id="finance-estimated-note" hidden>概算は、共通で使う費用をミトレルの利用割合で分けた額です。</span></p>
         <div id="finance-months"></div>
         <p id="finance-updated"></p>
       </div>

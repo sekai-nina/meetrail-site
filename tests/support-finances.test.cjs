@@ -40,3 +40,16 @@ test('月のデータだけが不正なら収支だけエラーにし、支援�
   assert.equal(els['support-payment-wrap'].hidden, false);
   assert.match(els['finance-status'].textContent, /表示できません/);
 });
+
+test('概算が 0 円なら概算の行を出さない', async () => {
+  const els = await render({ version: 1, updatedAt: '2026-11-25', paymentUrl: null, months: [{ month: '2026-11', supportYen: 0, actualExpenseYen: 10431, estimatedExpenseYen: 0 }] });
+  assert.equal(els['finance-estimated-row'], undefined); // 触っていない = HTML の hidden のまま
+  assert.equal(els['finance-balance'].textContent, '10,431円の赤字');
+  assert.doesNotMatch(els['finance-months'].children[0].textContent, /概算/);
+});
+
+test('概算があれば概算の行と注記を出す', async () => {
+  const els = await render({ version: 1, updatedAt: null, paymentUrl: null, months: [{ month: '2026-11', supportYen: 0, actualExpenseYen: 100, estimatedExpenseYen: 50 }] });
+  assert.equal(els['finance-estimated-row'].hidden, false);
+  assert.equal(els['finance-estimated-note'].hidden, false);
+});
