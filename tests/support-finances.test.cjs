@@ -121,3 +121,30 @@ test('合計の見出しに一番古い月を出す', async () => {
   ] });
   assert.equal(els['finance-total-label'].textContent, '2026年5月からの合計');
 });
+
+const MONTHLY = [
+  { yen: 300, url: 'https://buy.stripe.com/m300' },
+  { yen: 500, url: 'https://buy.stripe.com/m500' },
+];
+
+test('毎月の応援は解約の入口があるときだけ金額ごとのボタンで出す', async () => {
+  const els = await render({ version: 1, updatedAt: null, paymentUrl: null, months: [], monthlyPayments: MONTHLY, portalUrl: 'https://billing.stripe.com/p/login/abc123' });
+  assert.equal(els['support-monthly'].hidden, false);
+  const links = els['support-monthly-links'].children;
+  assert.equal(links.length, 2);
+  assert.equal(links[0].textContent, '月 300円');
+  assert.equal(links[0].href, 'https://buy.stripe.com/m300');
+  assert.equal(els['support-portal'].href, 'https://billing.stripe.com/p/login/abc123');
+});
+
+test('解約の入口が無ければ毎月の応援を出さない', async () => {
+  const els = await render({ version: 1, updatedAt: null, paymentUrl: null, months: [], monthlyPayments: MONTHLY, portalUrl: null });
+  assert.equal(els['support-monthly'], undefined);
+});
+
+test('毎月の応援のリンクやポータルが Stripe 以外なら全体をエラーにする', async () => {
+  const bad = await render({ version: 1, updatedAt: null, paymentUrl: null, months: [], monthlyPayments: [{ yen: 300, url: 'https://example.com/x' }], portalUrl: 'https://billing.stripe.com/p/login/abc' });
+  assert.match(bad['support-payment-status'].textContent, /確認できません/);
+  const badPortal = await render({ version: 1, updatedAt: null, paymentUrl: null, months: [], monthlyPayments: MONTHLY, portalUrl: 'https://example.com/p/login/abc' });
+  assert.match(badPortal['support-payment-status'].textContent, /確認できません/);
+});

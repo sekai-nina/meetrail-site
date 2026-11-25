@@ -12,6 +12,9 @@ import { fileURLToPath } from 'node:url';
 const STRIPE_API = 'https://api.stripe.com/v1';
 const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
 const PAGE_LIMIT = 100;
+// 毎月の応援の 2 回目以降は Checkout Session ではなく請求書 (invoice) で入る。
+// invoice.charge が残る版に固定する (= 2025-03-31.basil 以降は invoice.payments に変わる)
+const INVOICE_API_VERSION = '2024-06-20';
 
 /** `2026-11` → JST のその月の [開始, 翌月開始) を Unix 秒で */
 export function jstMonthRange(month) {
@@ -44,22 +47,24 @@ export function netYenOf(session) {
   return Math.max(transaction.net - (charge.amount_refunded ?? 0), 0);
 }
 
-async function stripeGet(path, params, apiKey) {
+async function stripeGet(path, params, apiKey, version) {
   const url = new URL(`${STRIPE_API}${path}`);
   for (const [key, value] of params) url.searchParams.append(key, String(value));
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
+  const headers = { Authorization: `Bearer ${apiKey}`, ...(version ? { 'Stripe-Version': version } : {}) };
+  const res = await fetch(url, { headers });
   if (!res.ok) throw new Error(`Stripe ${path} failed: ${res.status} ${await res.text()}`);
   return res.json();
 }
 
-async function listAll(path, params, apiKey) {
+async function listAll(path, params, apiKey, version) {
   const items = [];
   let startingAfter;
   for (;;) {
     const page = await stripeGet(
       path,
       [...params, ['limit', PAGE_LIMIT], ...(startingAfter ? [['starting_after', startingAfter]] : [])],
-      apiKey
+      apiKey,
+      version
     );
     items.push(...page.data);
     if (!page.has_more) return items;
@@ -121,18 +126,90 @@ async function netYenForMonth(paymentLinkId, month, apiKey) {
   return sum;
 }
 
+/**
+ * 毎月の応援の請求書 1 件の手取り (円)。支払い済みでなければ 0。
+ * 手取り = 残高取引の net − 返金額。マイナスにはしない。
+ */
+export function netYenOfInvoice(invoice) {
+  if (invoice.status !== 'paid') return 0;
+  if (invoice.currency !== 'jpy') throw new Error(`unexpected currency: ${invoice.currency}`);
+  const charge = invoice.charge;
+  if (!charge) return 0; // 0 円の請求 (= クーポン等) は charge が無い
+  const transaction = charge.balance_transaction;
+  if (!transaction || typeof transaction !== 'object') {
+    throw new Error(`balance transaction is not expanded: ${invoice.id}`);
+  }
+  if (transaction.currency !== 'jpy') {
+    throw new Error(`unexpected settlement currency: ${transaction.currency}`);
+  }
+  return Math.max(transaction.net - (charge.amount_refunded ?? 0), 0);
+}
+
+/** 請求書の charge と残高取引を、展開されていなければ個別に取り直す */
+export async function expandInvoice(invoice, apiKey, get = stripeGet) {
+  if (invoice.status !== 'paid' || !invoice.charge) return invoice;
+  let charge = invoice.charge;
+  if (typeof charge === 'string') {
+    charge = await get(`/charges/${charge}`, [['expand[]', 'balance_transaction']], apiKey);
+  }
+  let transaction = charge.balance_transaction;
+  if (typeof transaction === 'string') {
+    transaction = await get(`/balance_transactions/${transaction}`, [], apiKey);
+  }
+  if (!transaction) throw new PendingBalanceError(`balance transaction is not created yet: ${invoice.id}`);
+  return { ...invoice, charge: { ...charge, balance_transaction: transaction } };
+}
+
+/** 毎月の応援の決済リンクから始まったサブスクリプションの ID */
+async function subscriptionIdsOf(paymentLinkId, apiKey) {
+  const sessions = await listAll('/checkout/sessions', [['payment_link', paymentLinkId]], apiKey);
+  return sessions
+    .filter((session) => session.status === 'complete' && session.subscription)
+    .map((session) => (typeof session.subscription === 'string' ? session.subscription : session.subscription.id));
+}
+
+/** 毎月の応援 (1 回目を含む全請求書) のその月の手取り */
+async function monthlyNetYenForMonth(subscriptionIds, month, apiKey) {
+  const { start, end } = jstMonthRange(month);
+  let sum = 0;
+  for (const subscriptionId of subscriptionIds) {
+    const invoices = await listAll(
+      '/invoices',
+      [
+        ['subscription', subscriptionId],
+        ['status', 'paid'],
+        ['created[gte]', start],
+        ['created[lt]', end],
+        ['expand[]', 'data.charge.balance_transaction'],
+      ],
+      apiKey,
+      INVOICE_API_VERSION
+    );
+    for (const invoice of invoices) sum += netYenOfInvoice(await expandInvoice(invoice, apiKey));
+  }
+  return sum;
+}
+
 /** JSON を更新する。変わったら true */
 export async function updateSupportFinances({ path, apiKey, now = new Date(), netYenFor }) {
   const data = JSON.parse(await readFile(path, 'utf8'));
-  if (!data.paymentUrl) {
-    console.log('paymentUrl が未設定なので何もしない');
+  const monthlyUrls = (data.monthlyPayments ?? []).map((item) => item.url);
+  if (!data.paymentUrl && monthlyUrls.length === 0) {
+    console.log('決済リンクが未設定なので何もしない');
     return false;
   }
   const resolveNet =
     netYenFor ??
     (await (async () => {
-      const paymentLinkId = await findPaymentLinkId(data.paymentUrl, apiKey);
-      return (month) => netYenForMonth(paymentLinkId, month, apiKey);
+      // 単発はリンク経由の Checkout Session、毎月は請求書で数える (= 1 回目を二重に数えない)
+      const oneTimeLinkId = data.paymentUrl ? await findPaymentLinkId(data.paymentUrl, apiKey) : null;
+      const subscriptionIds = [];
+      for (const url of monthlyUrls) {
+        subscriptionIds.push(...(await subscriptionIdsOf(await findPaymentLinkId(url, apiKey), apiKey)));
+      }
+      return async (month) =>
+        (oneTimeLinkId ? await netYenForMonth(oneTimeLinkId, month, apiKey) : 0) +
+        (await monthlyNetYenForMonth(subscriptionIds, month, apiKey));
     })());
   let isChanged = false;
   for (const row of data.months) {

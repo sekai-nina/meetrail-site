@@ -904,3 +904,11 @@ a:hover {
 .doc .past-month__items { list-style: none; margin: 4px 0 0; padding: 0 0 0 12px; font-size: 0.8125rem; }
 .doc .past-month__items li { display: flex; justify-content: space-between; gap: 16px; margin: 2px 0; }
 .past-month__item-label { color: var(--ink-muted); }
+.support-monthly { margin: 16px 0 0; }
+.doc .support-monthly__label { font-size: 0.875rem; color: var(--ink-muted); margin: 0 0 8px; }
+.doc .support-monthly__links { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
+.doc .support-monthly__portal { font-size: 0.875rem; margin: 8px 0 0; }
+/* スマホ幅でもヘッダーの 5 項目を 1 行に収める (= 「応援する」だけ 2 行目に落ちない) */
+@media (max-width: 600px) {
+  .site-nav { gap: 10px; font-size: 13px; }
+}

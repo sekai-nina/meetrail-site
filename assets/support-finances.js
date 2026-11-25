@@ -42,7 +42,12 @@
     data = await response.json();
     const isNullableString = (v) => v === null || typeof v === 'string';
     if (!data || data.version !== 1 || !Array.isArray(data.months) || !isNullableString(data.updatedAt) || !isNullableString(data.paymentUrl)) throw new Error('invalid data');
-    if (data.paymentUrl && !/^https:\/\/(buy|donate)\.stripe\.com\/[A-Za-z0-9_-]+$/.test(data.paymentUrl)) throw new Error('invalid payment url');
+    const STRIPE_PAYMENT_URL = /^https:\/\/(buy|donate)\.stripe\.com\/[A-Za-z0-9_-]+$/;
+    if (data.paymentUrl && !STRIPE_PAYMENT_URL.test(data.paymentUrl)) throw new Error('invalid payment url');
+    // 毎月の応援 (任意)。金額ごとの決済リンクと、解約・変更のためのカスタマーポータル
+    const monthly = data.monthlyPayments ?? [];
+    if (!Array.isArray(monthly) || !monthly.every((m) => m && Number.isSafeInteger(m.yen) && m.yen > 0 && typeof m.url === 'string' && STRIPE_PAYMENT_URL.test(m.url))) throw new Error('invalid monthly payments');
+    if (!(data.portalUrl === undefined || data.portalUrl === null || (typeof data.portalUrl === 'string' && /^https:\/\/billing\.stripe\.com\/p\/login\/[A-Za-z0-9_]+$/.test(data.portalUrl)))) throw new Error('invalid portal url');
   } catch {
     byId('support-payment-status').textContent = '応援金の受付状況を確認できませんでした。';
     byId('finance-status').textContent = '収支を読み込めませんでした。時間をおいてお試しください。';
@@ -53,6 +58,19 @@
     byId('support-payment').href = data.paymentUrl;
     byId('support-payment-wrap').hidden = false;
     byId('support-payment-status').textContent = 'いただいた応援金は、ミトレルの開発・運営に活用します。';
+  }
+  // 解約の入口が無いまま毎月の応援は出さない
+  const monthly = data.monthlyPayments ?? [];
+  if (monthly.length && data.portalUrl) {
+    for (const { yen, url } of monthly) {
+      const link = document.createElement('a');
+      link.className = 'btn btn--outline';
+      link.href = url;
+      link.textContent = `月 ${money(yen)}`;
+      byId('support-monthly-links').append(link);
+    }
+    byId('support-portal').href = data.portalUrl;
+    byId('support-monthly').hidden = false;
   }
   if (!data.months.length) { byId('finance-status').textContent = '収支の公開は準備中です。'; return; }
   const seen = new Set();
