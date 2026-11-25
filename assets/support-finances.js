@@ -124,6 +124,8 @@
     byId('finance-months').append(item);
   }
   byId('finance-updated').textContent = data.updatedAt ? `更新日 ${date(data.updatedAt)}` : '';
+  // 合計の期間をはっきりさせる (= 一番古い月から)
+  byId('finance-total-label').textContent = `${yearMonth(sorted.at(-1).month)}からの合計`;
   byId('finance-status').hidden = true;
   byId('finance-content').hidden = false;
 })();

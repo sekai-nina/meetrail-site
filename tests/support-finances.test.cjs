@@ -113,3 +113,11 @@ test('内訳の合計が実費と合わなければ収支を出さない', async
   assert.match(els['finance-status'].textContent, /表示できません/);
   assert.equal(els['support-payment-wrap'].hidden, false);
 });
+
+test('合計の見出しに一番古い月を出す', async () => {
+  const els = await render({ version: 1, updatedAt: null, paymentUrl: null, months: [
+    { month: '2026-11', supportYen: 0, actualExpenseYen: 100, estimatedExpenseYen: 0 },
+    { month: '2026-05', supportYen: 0, actualExpenseYen: 100, estimatedExpenseYen: 0 },
+  ] });
+  assert.equal(els['finance-total-label'].textContent, '2026年5月からの合計');
+});
