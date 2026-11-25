@@ -15,7 +15,7 @@
       href="https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="assets/style.css?v=7" />
+    <link rel="stylesheet" href="assets/style.css?v=8" />
   </head>
   <body>
     <header class="site-header">
@@ -29,6 +29,7 @@
           <a href="guide.html">使い方</a>
           <a href="faq.html">よくある質問</a>
           <a href="support.html">お問い合わせ</a>
+          <a href="support-finances.html" aria-current="page">応援する</a>
         </nav>
       </div>
     </header>
@@ -45,6 +46,11 @@
       </div>
       <p id="support-payment-status">応援金の受付は準備中です。</p>
       <p id="support-payment-wrap" hidden><a id="support-payment" class="btn btn--primary">応援する</a></p>
+      <div id="support-monthly" class="support-monthly" hidden>
+        <p class="support-monthly__label">毎月応援する（いつでも解約できます）</p>
+        <p id="support-monthly-links" class="support-monthly__links"></p>
+        <p class="support-monthly__portal"><a id="support-portal">毎月の応援の確認・解約</a></p>
+      </div>
       <h2>開発・運営の収支</h2>
       <p id="finance-status" role="status">読み込み中です。</p>
       <div id="finance-content" hidden>
@@ -54,7 +60,7 @@
           <tr><th>開発・運営費（実費）</th><td id="finance-actual"></td></tr>
           <tr id="finance-estimated-row" hidden><th>開発・運営費（概算）</th><td id="finance-estimated"></td></tr>
         </tbody></table>
-        <p>応援の受付は 2026年11月から始めました。それより前の運営費は開発者が負担しています。</p>
+        <p id="support-start-note" hidden></p>
         <p>応援金は、Stripe の決済手数料を引いた手取りの額です。お支払いいただいた金額がそのまま反映されるわけではありません。毎日 1 回、自動で反映します。</p>
         <p>実費は、サーバーや自動テストなど請求額が分かる費用です。開発者の AI 利用料は含みません。カードの引き落とし額が分からないドル建ての費用は、1 ドル 158.34 円で換算しています。<span id="finance-estimated-note" hidden>概算は、共通で使う費用をミトレルの利用割合で分けた額です。運営費は実費と概算の合計です。</span></p>
         <div id="finance-months"></div>

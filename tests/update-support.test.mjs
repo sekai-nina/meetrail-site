@@ -5,10 +5,12 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import {
+  expandInvoice,
   expandSession,
   jstDate,
   jstMonthRange,
   netYenOf,
+  netYenOfInvoice,
   PendingBalanceError,
   updateSupportFinances,
 } from '../scripts/update-support.mjs';
@@ -126,4 +128,45 @@ test('残高取引がまだ無ければ保留として止める', async () => {
 test('未完了のセッションは取り直さない', async () => {
   const session = { ...paid(0), status: 'expired', payment_intent: 'pi_1' };
   assert.equal(await expandSession(session, 'rk_test', async () => { throw new Error('no'); }), session);
+});
+
+const paidInvoice = (net, amountRefunded = 0) => ({
+  id: 'in_test',
+  status: 'paid',
+  currency: 'jpy',
+  charge: { amount_refunded: amountRefunded, balance_transaction: { currency: 'jpy', net } },
+});
+
+test('毎月の応援の請求書は手数料を引いた net、返金分を除く', () => {
+  assert.equal(netYenOfInvoice(paidInvoice(288)), 288);
+  assert.equal(netYenOfInvoice(paidInvoice(288, 100)), 188);
+  assert.equal(netYenOfInvoice({ ...paidInvoice(288), status: 'open' }), 0);
+  assert.equal(netYenOfInvoice({ ...paidInvoice(0), charge: null }), 0);
+  assert.throws(() => netYenOfInvoice({ ...paidInvoice(288), currency: 'usd' }), /currency/);
+});
+
+test('請求書の charge と残高取引が展開されていなければ取り直す', async () => {
+  const calls = [];
+  const get = async (p) => {
+    calls.push(p);
+    if (p === '/charges/ch_9') return { amount_refunded: 0, balance_transaction: 'txn_9' };
+    if (p === '/balance_transactions/txn_9') return { currency: 'jpy', net: 288 };
+    throw new Error(`unexpected ${p}`);
+  };
+  const expanded = await expandInvoice({ ...paidInvoice(0), charge: 'ch_9' }, 'rk_test', get);
+  assert.deepEqual(calls, ['/charges/ch_9', '/balance_transactions/txn_9']);
+  assert.equal(netYenOfInvoice(expanded), 288);
+});
+
+test('毎月の応援だけ設定されていても集計する', async () => {
+  const file = await withJson({
+    version: 1,
+    updatedAt: '2026-11-25',
+    paymentUrl: null,
+    monthlyPayments: [{ yen: 300, url: 'https://buy.stripe.com/m300' }],
+    months: [{ month: '2026-12', supportYen: 0, actualExpenseYen: 100, estimatedExpenseYen: 0 }],
+  });
+  const isChanged = await updateSupportFinances({ path: file, apiKey: 'rk_test', netYenFor: async () => 288 });
+  assert.equal(isChanged, true);
+  assert.equal(JSON.parse(await readFile(file, 'utf8')).months[0].supportYen, 288);
 });
