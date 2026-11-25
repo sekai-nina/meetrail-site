@@ -890,3 +890,14 @@ a:hover {
 }
 
 .finance-table td { text-align: right; font-variant-numeric: tabular-nums; }
+
+.coverage { margin: 24px 0 8px; }
+.doc .coverage__label, .doc .coverage__note { color: var(--ink-muted); font-size: 0.875rem; margin: 0; }
+.doc .coverage__percent { color: var(--ink); font-size: 2.5rem; font-weight: 800; line-height: 1.2; margin: 4px 0 8px; }
+.coverage__bar { height: 12px; border-radius: 999px; background: var(--primary-soft); overflow: hidden; }
+.coverage__bar--thin { height: 6px; }
+.coverage__fill { display: block; height: 100%; border-radius: 999px; background: var(--primary); }
+.doc .coverage__amounts { font-size: 0.875rem; margin: 8px 0 0; }
+.past-month { margin-top: 16px; }
+.doc .past-month__head { color: var(--ink); display: flex; justify-content: space-between; font-weight: 700; font-size: 0.875rem; margin: 0 0 4px; }
+.doc .past-month__amounts { color: var(--ink-muted); font-size: 0.8125rem; margin: 4px 0 0; }

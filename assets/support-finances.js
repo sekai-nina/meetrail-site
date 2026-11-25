@@ -5,6 +5,27 @@
   const date = (d) => { const [y, mo, da] = d.split('-'); return `${y}年${Number(mo)}月${Number(da)}日`; };
   const isYen = (n) => Number.isSafeInteger(n) && n >= 0;
   const KEYS = ['supportYen', 'actualExpenseYen', 'estimatedExpenseYen'];
+  // 運営費 (実費 + 概算) のうち応援でまかなえた割合。運営費 0 円なら percent は null
+  const coverageOf = (row) => {
+    const expenseYen = row.actualExpenseYen + row.estimatedExpenseYen;
+    const remainingYen = Math.max(expenseYen - row.supportYen, 0);
+    if (expenseYen === 0) return { percent: null, barPercent: 0, expenseYen, remainingYen };
+    const percent = Math.floor((row.supportYen * 100) / expenseYen);
+    return { percent, barPercent: Math.min(percent, 100), expenseYen, remainingYen };
+  };
+  // 運営費が 0 円の月は「まかなえた」と言わない (= 応援 0 円でも達成に読める)
+  const coverageMessage = ({ percent, remainingYen }, label) => {
+    if (percent === null) return `${label}の運営費はありません。`;
+    if (remainingYen > 0) return `あと ${money(remainingYen)} で${label}の運営費に届きます。`;
+    return `${label}の運営費は応援でまかなえています。`;
+  };
+  const setBar = (bar, fill, barPercent) => {
+    fill.style.width = `${barPercent}%`;
+    bar.setAttribute('role', 'progressbar');
+    bar.setAttribute('aria-valuemin', '0');
+    bar.setAttribute('aria-valuemax', '100');
+    bar.setAttribute('aria-valuenow', String(barPercent));
+  };
   let data;
   try {
     const response = await fetch('support-finances.json', { cache: 'no-cache' });
@@ -44,10 +65,39 @@
   }
   const balance = total.supportYen - total.actualExpenseYen - total.estimatedExpenseYen;
   byId('finance-balance').textContent = balance < 0 ? `${money(-balance)}の赤字` : money(balance);
-  for (const row of [...data.months].sort((a, b) => b.month.localeCompare(a.month))) {
-    const item = document.createElement('p');
-    const estimated = row.estimatedExpenseYen > 0 ? ` / 概算 ${money(row.estimatedExpenseYen)}` : '';
-    item.textContent = `${yearMonth(row.month)}：応援金 ${money(row.supportYen)} / 実費 ${money(row.actualExpenseYen)}${estimated}`;
+  const sorted = [...data.months].sort((a, b) => b.month.localeCompare(a.month));
+  // 最新の月は、運営費のうち応援でまかなえた割合を大きく出す
+  const latest = sorted[0];
+  const latestCoverage = coverageOf(latest);
+  const latestLabel = yearMonth(latest.month);
+  byId('coverage-label').textContent = `${latestLabel}の運営費のうち、応援でまかなえた割合`;
+  byId('coverage-percent').textContent = latestCoverage.percent === null ? '' : `${latestCoverage.percent}%`;
+  setBar(byId('coverage-bar'), byId('coverage-fill'), latestCoverage.barPercent);
+  byId('coverage-amounts').textContent = `応援金 ${money(latest.supportYen)} ／ 運営費 ${money(latestCoverage.expenseYen)}`;
+  byId('coverage-remaining').textContent = coverageMessage(latestCoverage, latestLabel);
+  byId('coverage').hidden = false;
+  // 月ごとの一覧 (= 合計の内訳。最新の月も含める) は細い棒で並べる
+  for (const row of sorted) {
+    const coverage = coverageOf(row);
+    const item = document.createElement('div');
+    item.className = 'past-month';
+    const head = document.createElement('p');
+    head.className = 'past-month__head';
+    const monthLabel = document.createElement('span');
+    monthLabel.textContent = yearMonth(row.month);
+    const percentLabel = document.createElement('span');
+    percentLabel.textContent = coverage.percent === null ? '—' : `${coverage.percent}%`;
+    head.append(monthLabel, percentLabel);
+    const bar = document.createElement('div');
+    bar.className = 'coverage__bar coverage__bar--thin';
+    const fill = document.createElement('span');
+    fill.className = 'coverage__fill';
+    bar.append(fill);
+    setBar(bar, fill, coverage.barPercent);
+    const amounts = document.createElement('p');
+    amounts.className = 'past-month__amounts';
+    amounts.textContent = `応援金 ${money(row.supportYen)} ／ 運営費 ${money(coverage.expenseYen)}`;
+    item.append(head, bar, amounts);
     byId('finance-months').append(item);
   }
   byId('finance-updated').textContent = data.updatedAt ? `更新日 ${date(data.updatedAt)}` : '';
