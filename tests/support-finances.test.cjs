@@ -19,11 +19,11 @@ test('未入力は0円扱いせず支援ボタンを表示しない', async () =
   assert.equal(els['support-payment-wrap'], undefined);
 });
 
-test('公開済みの支援額・実費・概算と差額を表示する', async () => {
+test('公開済みの支援額・実費・概算を表示し、差額 (赤字) は出さない', async () => {
   const els = await render({ version: 1, updatedAt: '2026-11-23', paymentUrl: 'https://buy.stripe.com/example', months: [{ month: '2026-11', supportYen: 1000, actualExpenseYen: 2000, estimatedExpenseYen: 500 }] });
   assert.equal(els['support-payment-wrap'].hidden, false);
   assert.equal(els['finance-content'].hidden, false);
-  assert.equal(els['finance-balance'].textContent, '1,500円の赤字');
+  assert.equal(els['finance-balance'], undefined);
   assert.match(els['finance-updated'].textContent, /2026年11月23日/);
 });
 
@@ -43,7 +43,6 @@ test('月のデータだけが不正なら収支だけエラーにし、支援�
 test('概算が 0 円なら概算の行を出さない', async () => {
   const els = await render({ version: 1, updatedAt: '2026-11-25', paymentUrl: null, months: [{ month: '2026-11', supportYen: 0, actualExpenseYen: 10431, estimatedExpenseYen: 0 }] });
   assert.equal(els['finance-estimated-row'], undefined); // 触っていない = HTML の hidden のまま
-  assert.equal(els['finance-balance'].textContent, '10,431円の赤字');
 });
 
 test('概算があれば概算の行と注記を出す', async () => {

@@ -73,8 +73,6 @@
     byId('finance-estimated-row').hidden = false;
     byId('finance-estimated-note').hidden = false;
   }
-  const balance = total.supportYen - total.actualExpenseYen - total.estimatedExpenseYen;
-  byId('finance-balance').textContent = balance < 0 ? `${money(-balance)}の赤字` : money(balance);
   const sorted = [...data.months].sort((a, b) => b.month.localeCompare(a.month));
   // 最新の月は、運営費のうち応援でまかなえた割合を大きく出す
   const latest = sorted[0];
