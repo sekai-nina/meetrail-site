@@ -5,6 +5,13 @@
   const date = (d) => { const [y, mo, da] = d.split('-'); return `${y}年${Number(mo)}月${Number(da)}日`; };
   const isYen = (n) => Number.isSafeInteger(n) && n >= 0;
   const KEYS = ['supportYen', 'actualExpenseYen', 'estimatedExpenseYen'];
+  // 実費の内訳は無くてもよい。あれば全件が正しく、合計が実費と一致する (= 内訳と合計を食い違わせない)
+  const hasValidItems = (items, actualExpenseYen) => {
+    if (items === undefined) return true;
+    if (!Array.isArray(items)) return false;
+    const isItem = (item) => item && typeof item.label === 'string' && item.label.length > 0 && (item.detail === undefined || typeof item.detail === 'string') && isYen(item.yen);
+    return items.every(isItem) && items.reduce((sum, item) => sum + item.yen, 0) === actualExpenseYen;
+  };
   // 運営費 (実費 + 概算) のうち応援でまかなえた割合。運営費 0 円なら percent は null
   const coverageOf = (row) => {
     const expenseYen = row.actualExpenseYen + row.estimatedExpenseYen;
@@ -52,6 +59,7 @@
   const total = { supportYen: 0, actualExpenseYen: 0, estimatedExpenseYen: 0 };
   const isValid = data.months.every((row) => {
     if (!row || typeof row.month !== 'string' || !/^\d{4}-(0[1-9]|1[0-2])$/.test(row.month) || seen.has(row.month) || !KEYS.every((key) => isYen(row[key]))) return false;
+    if (!hasValidItems(row.items, row.actualExpenseYen)) return false;
     seen.add(row.month);
     for (const key of KEYS) total[key] += row[key];
     return Object.values(total).every(Number.isSafeInteger) && Number.isSafeInteger(total.actualExpenseYen + total.estimatedExpenseYen);
@@ -65,8 +73,6 @@
     byId('finance-estimated-row').hidden = false;
     byId('finance-estimated-note').hidden = false;
   }
-  const balance = total.supportYen - total.actualExpenseYen - total.estimatedExpenseYen;
-  byId('finance-balance').textContent = balance < 0 ? `${money(-balance)}の赤字` : money(balance);
   const sorted = [...data.months].sort((a, b) => b.month.localeCompare(a.month));
   // 最新の月は、運営費のうち応援でまかなえた割合を大きく出す
   const latest = sorted[0];
@@ -100,6 +106,21 @@
     amounts.className = 'past-month__amounts';
     amounts.textContent = `応援金 ${money(row.supportYen)} ／ 運営費 ${money(coverage.expenseYen)}`;
     item.append(head, bar, amounts);
+    if (row.items?.length) {
+      const list = document.createElement('ul');
+      list.className = 'past-month__items';
+      for (const expense of row.items) {
+        const li = document.createElement('li');
+        const name = document.createElement('span');
+        name.className = 'past-month__item-label';
+        name.textContent = expense.detail ? `${expense.label}（${expense.detail}）` : expense.label;
+        const yen = document.createElement('span');
+        yen.textContent = money(expense.yen);
+        li.append(name, yen);
+        list.append(li);
+      }
+      item.append(list);
+    }
     byId('finance-months').append(item);
   }
   byId('finance-updated').textContent = data.updatedAt ? `更新日 ${date(data.updatedAt)}` : '';
