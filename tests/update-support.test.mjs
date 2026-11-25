@@ -4,7 +4,14 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-import { jstDate, jstMonthRange, netYenOf, updateSupportFinances } from '../scripts/update-support.mjs';
+import {
+  expandSession,
+  jstDate,
+  jstMonthRange,
+  netYenOf,
+  PendingBalanceError,
+  updateSupportFinances,
+} from '../scripts/update-support.mjs';
 
 const paid = (net, amountRefunded = 0) => ({
   id: 'cs_test',
@@ -88,4 +95,35 @@ test('変わらなければ書き込まない', async () => {
   const isChanged = await updateSupportFinances({ path: file, apiKey: 'rk_test', netYenFor: async () => 964 });
   assert.equal(isChanged, false);
   assert.deepEqual(JSON.parse(await readFile(file, 'utf8')), original);
+});
+
+test('展開されなかった charge と残高取引を個別に取り直す', async () => {
+  const calls = [];
+  const get = async (p) => {
+    calls.push(p);
+    if (p === '/charges/ch_1') return { id: 'ch_1', amount_refunded: 0, balance_transaction: 'txn_1' };
+    if (p === '/balance_transactions/txn_1') return { currency: 'jpy', net: 96 };
+    throw new Error(`unexpected ${p}`);
+  };
+  const session = { ...paid(0), payment_intent: { latest_charge: 'ch_1' } };
+  const expanded = await expandSession(session, 'rk_test', get);
+  assert.deepEqual(calls, ['/charges/ch_1', '/balance_transactions/txn_1']);
+  assert.equal(netYenOf(expanded), 96);
+});
+
+test('展開済みなら取り直さない', async () => {
+  const expanded = await expandSession(paid(96), 'rk_test', async () => {
+    throw new Error('should not fetch');
+  });
+  assert.equal(netYenOf(expanded), 96);
+});
+
+test('残高取引がまだ無ければ保留として止める', async () => {
+  const session = { ...paid(0), payment_intent: { latest_charge: { amount_refunded: 0, balance_transaction: null } } };
+  await assert.rejects(expandSession(session, 'rk_test', async () => ({})), PendingBalanceError);
+});
+
+test('未完了のセッションは取り直さない', async () => {
+  const session = { ...paid(0), status: 'expired', payment_intent: 'pi_1' };
+  assert.equal(await expandSession(session, 'rk_test', async () => { throw new Error('no'); }), session);
 });
