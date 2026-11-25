@@ -1,12 +1,48 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-25",
+  "updatedAt": "2026-11-26",
   "paymentUrl": "https://buy.stripe.com/5kQ9AV4MA2ElfUPgKh5os0g",
   "months": [
     {
+      "month": "2026-05",
+      "supportYen": 0,
+      "actualExpenseYen": 3959,
+      "estimatedExpenseYen": 0
+    },
+    {
+      "month": "2026-06",
+      "supportYen": 0,
+      "actualExpenseYen": 3959,
+      "estimatedExpenseYen": 0
+    },
+    {
+      "month": "2026-07",
+      "supportYen": 0,
+      "actualExpenseYen": 3959,
+      "estimatedExpenseYen": 0
+    },
+    {
+      "month": "2026-08",
+      "supportYen": 0,
+      "actualExpenseYen": 8734,
+      "estimatedExpenseYen": 0
+    },
+    {
+      "month": "2026-09",
+      "supportYen": 0,
+      "actualExpenseYen": 4354,
+      "estimatedExpenseYen": 0
+    },
+    {
+      "month": "2026-10",
+      "supportYen": 0,
+      "actualExpenseYen": 9010,
+      "estimatedExpenseYen": 0
+    },
+    {
       "month": "2026-11",
       "supportYen": 96,
-      "actualExpenseYen": 10431,
+      "actualExpenseYen": 13949,
       "estimatedExpenseYen": 0
     }
   ]
