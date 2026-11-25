@@ -10,10 +10,12 @@
     const expenseYen = row.actualExpenseYen + row.estimatedExpenseYen;
     const remainingYen = Math.max(expenseYen - row.supportYen, 0);
     if (expenseYen === 0) return { percent: null, barPercent: 0, expenseYen, remainingYen };
-    const percent = Math.floor((row.supportYen * 100) / expenseYen);
+    // 小数第 1 位まで切り捨て (= 少額の応援でも数字が動く)
+    const percent = Math.floor((row.supportYen * 1000) / expenseYen) / 10;
     return { percent, barPercent: Math.min(percent, 100), expenseYen, remainingYen };
   };
   // 運営費が 0 円の月は「まかなえた」と言わない (= 応援 0 円でも達成に読める)
+  const pct = (n) => `${n.toFixed(1)}%`;
   const coverageMessage = ({ percent, remainingYen }, label) => {
     if (percent === null) return `${label}の運営費はありません。`;
     if (remainingYen > 0) return `あと ${money(remainingYen)} で${label}の運営費に届きます。`;
@@ -71,7 +73,7 @@
   const latestCoverage = coverageOf(latest);
   const latestLabel = yearMonth(latest.month);
   byId('coverage-label').textContent = `${latestLabel}の運営費のうち、応援でまかなえた割合`;
-  byId('coverage-percent').textContent = latestCoverage.percent === null ? '' : `${latestCoverage.percent}%`;
+  byId('coverage-percent').textContent = latestCoverage.percent === null ? '' : pct(latestCoverage.percent);
   setBar(byId('coverage-bar'), byId('coverage-fill'), latestCoverage.barPercent);
   byId('coverage-amounts').textContent = `応援金 ${money(latest.supportYen)} ／ 運営費 ${money(latestCoverage.expenseYen)}`;
   byId('coverage-remaining').textContent = coverageMessage(latestCoverage, latestLabel);
@@ -86,7 +88,7 @@
     const monthLabel = document.createElement('span');
     monthLabel.textContent = yearMonth(row.month);
     const percentLabel = document.createElement('span');
-    percentLabel.textContent = coverage.percent === null ? '—' : `${coverage.percent}%`;
+    percentLabel.textContent = coverage.percent === null ? '—' : pct(coverage.percent);
     head.append(monthLabel, percentLabel);
     const bar = document.createElement('div');
     bar.className = 'coverage__bar coverage__bar--thin';
