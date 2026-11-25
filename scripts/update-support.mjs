@@ -75,6 +75,35 @@ async function findPaymentLinkId(paymentUrl, apiKey) {
   return link.id;
 }
 
+/** 残高取引がまだ作られていない (= 決済直後など)。次の実行で数え直す */
+export class PendingBalanceError extends Error {}
+
+/**
+ * 支払い済みのセッションの charge と残高取引を、展開されていなければ個別に取り直す。
+ * (= 一覧の expand が深さや権限で効かず ID 文字列のまま返ることがある、2026-11-25 実測)
+ */
+export async function expandSession(session, apiKey, get = stripeGet) {
+  if (session.status !== 'complete' || session.payment_status !== 'paid') return session;
+  const paymentIntent = session.payment_intent;
+  if (!paymentIntent || typeof paymentIntent !== 'object') {
+    throw new Error(`payment intent is not expanded: ${session.id}`);
+  }
+  let charge = paymentIntent.latest_charge;
+  if (typeof charge === 'string') {
+    charge = await get(`/charges/${charge}`, [['expand[]', 'balance_transaction']], apiKey);
+  }
+  if (!charge) throw new PendingBalanceError(`charge is not created yet: ${session.id}`);
+  let transaction = charge.balance_transaction;
+  if (typeof transaction === 'string') {
+    transaction = await get(`/balance_transactions/${transaction}`, [], apiKey);
+  }
+  if (!transaction) throw new PendingBalanceError(`balance transaction is not created yet: ${session.id}`);
+  return {
+    ...session,
+    payment_intent: { ...paymentIntent, latest_charge: { ...charge, balance_transaction: transaction } },
+  };
+}
+
 async function netYenForMonth(paymentLinkId, month, apiKey) {
   const { start, end } = jstMonthRange(month);
   const sessions = await listAll(
@@ -87,7 +116,9 @@ async function netYenForMonth(paymentLinkId, month, apiKey) {
     ],
     apiKey
   );
-  return sessions.reduce((sum, session) => sum + netYenOf(session), 0);
+  let sum = 0;
+  for (const session of sessions) sum += netYenOf(await expandSession(session, apiKey));
+  return sum;
 }
 
 /** JSON を更新する。変わったら true */
@@ -123,6 +154,12 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (!apiKey) throw new Error('STRIPE_API_KEY is required');
   if (!apiKey.startsWith('rk_')) throw new Error('読み取り専用の制限付きキー (rk_...) を使う');
   const path = fileURLToPath(new URL('../support-finances.json', import.meta.url));
-  const isChanged = await updateSupportFinances({ path, apiKey });
-  console.log(isChanged ? 'updated' : 'unchanged');
+  try {
+    const isChanged = await updateSupportFinances({ path, apiKey });
+    console.log(isChanged ? 'updated' : 'unchanged');
+  } catch (error) {
+    // 保留中は失敗にしない (= 書き込まずに終わり、次の実行で数え直す)
+    if (!(error instanceof PendingBalanceError)) throw error;
+    console.log(`pending: ${error.message}`);
+  }
 }
