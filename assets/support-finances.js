@@ -47,6 +47,7 @@
     // 毎月の応援 (任意)。金額ごとの決済リンクと、解約・変更のためのカスタマーポータル
     const monthly = data.monthlyPayments ?? [];
     if (!Array.isArray(monthly) || !monthly.every((m) => m && Number.isSafeInteger(m.yen) && m.yen > 0 && typeof m.url === 'string' && STRIPE_PAYMENT_URL.test(m.url))) throw new Error('invalid monthly payments');
+    if (!(data.supportStartMonth === undefined || data.supportStartMonth === null || (typeof data.supportStartMonth === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(data.supportStartMonth)))) throw new Error('invalid support start month');
     if (!(data.portalUrl === undefined || data.portalUrl === null || (typeof data.portalUrl === 'string' && /^https:\/\/billing\.stripe\.com\/p\/login\/[A-Za-z0-9_]+$/.test(data.portalUrl)))) throw new Error('invalid portal url');
   } catch {
     byId('support-payment-status').textContent = '応援金の受付状況を確認できませんでした。';
@@ -58,6 +59,11 @@
     byId('support-payment').href = data.paymentUrl;
     byId('support-payment-wrap').hidden = false;
     byId('support-payment-status').textContent = 'いただいた応援金は、ミトレルの開発・運営に活用します。';
+  }
+  const supportStartMonth = data.supportStartMonth ?? null;
+  if (supportStartMonth) {
+    byId('support-start-note').textContent = `応援の受付は ${yearMonth(supportStartMonth)}から始めました。それより前の運営費は開発者が負担しています。`;
+    byId('support-start-note').hidden = false;
   }
   // 解約の入口が無いまま毎月の応援は出さない
   const monthly = data.monthlyPayments ?? [];
@@ -105,6 +111,8 @@
   // 月ごとの一覧 (= 合計の内訳。最新の月も含める) は細い棒で並べる
   for (const row of sorted) {
     const coverage = coverageOf(row);
+    // 応援の受付開始前の月は、割合ではなく「開発者が負担」と出す (= 0% の棒を並べない)
+    const isBeforeStart = supportStartMonth !== null && row.month < supportStartMonth;
     const item = document.createElement('div');
     item.className = 'past-month';
     const head = document.createElement('p');
@@ -112,7 +120,7 @@
     const monthLabel = document.createElement('span');
     monthLabel.textContent = yearMonth(row.month);
     const percentLabel = document.createElement('span');
-    percentLabel.textContent = coverage.percent === null ? '—' : pct(coverage.percent);
+    percentLabel.textContent = isBeforeStart ? '開発者が負担' : coverage.percent === null ? '—' : pct(coverage.percent);
     head.append(monthLabel, percentLabel);
     const bar = document.createElement('div');
     bar.className = 'coverage__bar coverage__bar--thin';
@@ -122,8 +130,9 @@
     setBar(bar, fill, coverage.barPercent);
     const amounts = document.createElement('p');
     amounts.className = 'past-month__amounts';
-    amounts.textContent = `応援金 ${money(row.supportYen)} ／ 運営費 ${money(coverage.expenseYen)}`;
-    item.append(head, bar, amounts);
+    amounts.textContent = isBeforeStart ? `運営費 ${money(coverage.expenseYen)}` : `応援金 ${money(row.supportYen)} ／ 運営費 ${money(coverage.expenseYen)}`;
+    if (isBeforeStart) item.append(head, amounts);
+    else item.append(head, bar, amounts);
     if (row.items?.length) {
       const list = document.createElement('ul');
       list.className = 'past-month__items';

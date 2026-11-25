@@ -148,3 +148,23 @@ test('毎月の応援のリンクやポータルが Stripe 以外なら全体を
   const badPortal = await render({ version: 1, updatedAt: null, paymentUrl: null, months: [], monthlyPayments: MONTHLY, portalUrl: 'https://example.com/p/login/abc' });
   assert.match(badPortal['support-payment-status'].textContent, /確認できません/);
 });
+
+test('応援の受付開始前の月は割合と棒を出さず「開発者が負担」と出す', async () => {
+  const els = await render({ version: 1, updatedAt: null, paymentUrl: null, supportStartMonth: '2026-11', months: [
+    { month: '2026-11', supportYen: 96, actualExpenseYen: 13949, estimatedExpenseYen: 0 },
+    { month: '2026-10', supportYen: 0, actualExpenseYen: 9010, estimatedExpenseYen: 0 },
+  ] });
+  const [nov, oct] = els['finance-months'].children;
+  assert.equal(nov.children[0].children[1].textContent, '0.6%');
+  assert.equal(nov.children.length, 3); // 見出し・棒・金額
+  assert.equal(oct.children[0].children[1].textContent, '開発者が負担');
+  assert.equal(oct.children.length, 2); // 見出し・金額 (棒なし)
+  assert.equal(oct.children[1].textContent, '運営費 9,010円');
+  assert.match(els['support-start-note'].textContent, /2026年11月から始めました/);
+  assert.equal(els['support-start-note'].hidden, false);
+});
+
+test('受付開始月が不正なら全体をエラーにする', async () => {
+  const els = await render({ version: 1, updatedAt: null, paymentUrl: null, supportStartMonth: '2026/11', months: [] });
+  assert.match(els['support-payment-status'].textContent, /確認できません/);
+});
