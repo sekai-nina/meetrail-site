@@ -103,4 +103,13 @@ python3 -m http.server 8000
 {"version":1,"updatedAt":"2026-11-23","paymentUrl":null,"months":[{"month":"2026-11","supportYen":1000,"actualExpenseYen":2000,"estimatedExpenseYen":500}]}
 ```
 
+### 応援金の自動更新
+
+`.github/workflows/update-support.yml` が毎日 03:00 JST に `scripts/update-support.mjs` を実行し、`paymentUrl` の決済リンク経由の応援金を Stripe から集計して `supportYen` に書く (手数料と返金を引いた手取り)。
+
+- 書き換えるのは JSON に載っている月だけ。運営費が未入力の月は足さない (運営費を入れた後の実行で応援金が埋まる)
+- Secrets `STRIPE_SUPPORT_READ_KEY` に Stripe の**読み取り専用の制限付きキー** (`rk_...`) を入れる。権限は Checkout Sessions / Payment Links / PaymentIntents / Charges / Balance transactions の読み取りのみ
+- 手で回すときは Actions の「応援金の自動更新」→ Run workflow。ローカルでは回さない (キーを手元に置かない)
+- 60 日間リポジトリに動きが無いと GitHub が定時実行を止める。止まったら Actions 画面から有効にし直す
+
 実費と概算を混同しない。支援者や開発者の個人情報は記入しない。決済手数料・返金や費用の対象範囲は公開前に決め、集計を揃える。Stripe の受取主体・受付可否を確認できるまではリンクを設定しない。
