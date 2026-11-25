@@ -7,43 +7,117 @@
       "month": "2026-05",
       "supportYen": 0,
       "actualExpenseYen": 3959,
-      "estimatedExpenseYen": 0
+      "estimatedExpenseYen": 0,
+      "items": [
+        {
+          "label": "Supabase",
+          "detail": "データベース・Pro プラン $25",
+          "yen": 3959
+        }
+      ]
     },
     {
       "month": "2026-06",
       "supportYen": 0,
       "actualExpenseYen": 3959,
-      "estimatedExpenseYen": 0
+      "estimatedExpenseYen": 0,
+      "items": [
+        {
+          "label": "Supabase",
+          "detail": "データベース・Pro プラン $25",
+          "yen": 3959
+        }
+      ]
     },
     {
       "month": "2026-07",
       "supportYen": 0,
       "actualExpenseYen": 3959,
-      "estimatedExpenseYen": 0
+      "estimatedExpenseYen": 0,
+      "items": [
+        {
+          "label": "Supabase",
+          "detail": "データベース・Pro プラン $25",
+          "yen": 3959
+        }
+      ]
     },
     {
       "month": "2026-08",
       "supportYen": 0,
       "actualExpenseYen": 8734,
-      "estimatedExpenseYen": 0
+      "estimatedExpenseYen": 0,
+      "items": [
+        {
+          "label": "Supabase",
+          "detail": "データベース・Pro プラン $25",
+          "yen": 3959
+        },
+        {
+          "label": "ココナラ",
+          "detail": "Android クローズドテストの代行",
+          "yen": 4775
+        }
+      ]
     },
     {
       "month": "2026-09",
       "supportYen": 0,
       "actualExpenseYen": 4354,
-      "estimatedExpenseYen": 0
+      "estimatedExpenseYen": 0,
+      "items": [
+        {
+          "label": "Supabase",
+          "detail": "データベース・Pro プランと税 $27.50",
+          "yen": 4354
+        }
+      ]
     },
     {
       "month": "2026-10",
       "supportYen": 0,
       "actualExpenseYen": 9010,
-      "estimatedExpenseYen": 0
+      "estimatedExpenseYen": 0,
+      "items": [
+        {
+          "label": "Supabase",
+          "detail": "データベース・Pro プランと税 $27.50",
+          "yen": 4354
+        },
+        {
+          "label": "Blacksmith",
+          "detail": "自動テスト 9/21〜30 分 $17.87",
+          "yen": 2830
+        },
+        {
+          "label": "GitHub Actions",
+          "detail": "自動テスト 9/10〜30 分 $11.53",
+          "yen": 1826
+        }
+      ]
     },
     {
       "month": "2026-11",
       "supportYen": 96,
       "actualExpenseYen": 13949,
-      "estimatedExpenseYen": 0
+      "estimatedExpenseYen": 0,
+      "items": [
+        {
+          "label": "Supabase",
+          "detail": "データベース・Pro プランと税（請求全体の 65.1%）",
+          "yen": 4517
+        },
+        {
+          "label": "Blacksmith",
+          "detail": "自動テスト 10 月分",
+          "yen": 5914
+        },
+        {
+          "label": "Blacksmith",
+          "detail": "自動テスト 11/1〜25 分 $22.22",
+          "yen": 3518
+        }
+      ]
     }
   ]
 }

@@ -92,3 +92,25 @@ test('割合は小数第 1 位まで切り捨てで出す', async () => {
   ] });
   assert.equal(els['coverage-percent'].textContent, '0.9%');
 });
+
+test('月ごとの実費の内訳を並べる', async () => {
+  const els = await render({ version: 1, updatedAt: null, paymentUrl: null, months: [
+    { month: '2026-11', supportYen: 0, actualExpenseYen: 600, estimatedExpenseYen: 0, items: [
+      { label: 'Supabase', detail: 'データベース', yen: 400 },
+      { label: 'Blacksmith', yen: 200 },
+    ] },
+  ] });
+  const list = els['finance-months'].children[0].children[3];
+  assert.equal(list.children.length, 2);
+  assert.equal(list.children[0].children[0].textContent, 'Supabase（データベース）');
+  assert.equal(list.children[0].children[1].textContent, '400円');
+  assert.equal(list.children[1].children[0].textContent, 'Blacksmith');
+});
+
+test('内訳の合計が実費と合わなければ収支を出さない', async () => {
+  const els = await render({ version: 1, updatedAt: null, paymentUrl: 'https://buy.stripe.com/example', months: [
+    { month: '2026-11', supportYen: 0, actualExpenseYen: 600, estimatedExpenseYen: 0, items: [{ label: 'Supabase', yen: 599 }] },
+  ] });
+  assert.match(els['finance-status'].textContent, /表示できません/);
+  assert.equal(els['support-payment-wrap'].hidden, false);
+});
