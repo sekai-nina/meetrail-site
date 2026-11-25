@@ -59,13 +59,13 @@ test('最新の月にまかなえた割合と残りを出し、過去の月は�
   ] });
   assert.equal(els['coverage'].hidden, false);
   assert.match(els['coverage-label'].textContent, /2026年11月/);
-  assert.equal(els['coverage-percent'].textContent, '0%');
+  assert.equal(els['coverage-percent'].textContent, '0.0%');
   assert.equal(els['coverage-fill'].style.width, '0%');
   assert.match(els['coverage-remaining'].textContent, /あと 10,431円/);
   assert.equal(els['finance-months'].children.length, 2); // 最新の月も一覧に入る
   const past = els['finance-months'].children[1];
   assert.equal(past.children[0].children[0].textContent, '2026年10月');
-  assert.equal(past.children[0].children[1].textContent, '20%');
+  assert.equal(past.children[0].children[1].textContent, '20.0%');
   assert.equal(past.children[1].children[0].style.width, '20%');
 });
 
@@ -73,7 +73,7 @@ test('運営費を超えたら割合は 100% 超、棒は 100% で止める', as
   const els = await render({ version: 1, updatedAt: null, paymentUrl: null, months: [
     { month: '2026-11', supportYen: 12000, actualExpenseYen: 10000, estimatedExpenseYen: 0 },
   ] });
-  assert.equal(els['coverage-percent'].textContent, '120%');
+  assert.equal(els['coverage-percent'].textContent, '120.0%');
   assert.equal(els['coverage-fill'].style.width, '100%');
   assert.match(els['coverage-remaining'].textContent, /まかなえています/);
 });
@@ -84,4 +84,11 @@ test('運営費も応援も 0 円の月は「まかなえています」と言�
   ] });
   assert.equal(els['coverage-percent'].textContent, '');
   assert.match(els['coverage-remaining'].textContent, /運営費はありません/);
+});
+
+test('割合は小数第 1 位まで切り捨てで出す', async () => {
+  const els = await render({ version: 1, updatedAt: null, paymentUrl: null, months: [
+    { month: '2026-11', supportYen: 96, actualExpenseYen: 10431, estimatedExpenseYen: 0 },
+  ] });
+  assert.equal(els['coverage-percent'].textContent, '0.9%');
 });
