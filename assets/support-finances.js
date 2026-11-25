@@ -13,6 +13,12 @@
     const percent = Math.floor((row.supportYen * 100) / expenseYen);
     return { percent, barPercent: Math.min(percent, 100), expenseYen, remainingYen };
   };
+  // 運営費が 0 円の月は「まかなえた」と言わない (= 応援 0 円でも達成に読める)
+  const coverageMessage = ({ percent, remainingYen }, label) => {
+    if (percent === null) return `${label}の運営費はありません。`;
+    if (remainingYen > 0) return `あと ${money(remainingYen)} で${label}の運営費に届きます。`;
+    return `${label}の運営費は応援でまかなえています。`;
+  };
   const setBar = (bar, fill, barPercent) => {
     fill.style.width = `${barPercent}%`;
     bar.setAttribute('role', 'progressbar');
@@ -68,12 +74,10 @@
   byId('coverage-percent').textContent = latestCoverage.percent === null ? '' : `${latestCoverage.percent}%`;
   setBar(byId('coverage-bar'), byId('coverage-fill'), latestCoverage.barPercent);
   byId('coverage-amounts').textContent = `応援金 ${money(latest.supportYen)} ／ 運営費 ${money(latestCoverage.expenseYen)}`;
-  byId('coverage-remaining').textContent = latestCoverage.remainingYen > 0
-    ? `あと ${money(latestCoverage.remainingYen)} で${latestLabel}の運営費に届きます。`
-    : `${latestLabel}の運営費は応援でまかなえています。`;
+  byId('coverage-remaining').textContent = coverageMessage(latestCoverage, latestLabel);
   byId('coverage').hidden = false;
-  // 過去の月は細い棒で並べる
-  for (const row of sorted.slice(1)) {
+  // 月ごとの一覧 (= 合計の内訳。最新の月も含める) は細い棒で並べる
+  for (const row of sorted) {
     const coverage = coverageOf(row);
     const item = document.createElement('div');
     item.className = 'past-month';
