@@ -61,7 +61,7 @@
     {
       "month": "2026-08",
       "supportYen": 0,
-      "actualExpenseYen": 8734,
+      "actualExpenseYen": 12049,
       "estimatedExpenseYen": 0,
       "items": [
         {
@@ -73,6 +73,11 @@
           "label": "ココナラ",
           "detail": "Android クローズドテストの代行",
           "yen": 4775
+        },
+        {
+          "label": "Resend",
+          "detail": "メール送信・Transactional Pro $20（8/27〜9/27 分、引き落とし額）",
+          "yen": 3315
         }
       ]
     },
