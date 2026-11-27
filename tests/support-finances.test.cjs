@@ -42,16 +42,16 @@ test('月のデータだけが不正なら収支だけエラーにし、支援�
 
 test('概算が 0 円なら概算の行を出さない', async () => {
   const els = await render({ version: 1, updatedAt: '2026-11-25', paymentUrl: null, months: [{ month: '2026-11', supportYen: 0, actualExpenseYen: 10431, estimatedExpenseYen: 0 }] });
-  assert.equal(els['finance-estimated-row'], undefined); // 触っていない = HTML の hidden のまま
+  assert.equal(els['finance-estimated-note'], undefined); // 触っていない = HTML の hidden のまま
 });
 
-test('概算があれば概算の行と注記を出す', async () => {
+test('概算があれば注記を出し、表の運営費は実費と概算の合計にする', async () => {
   const els = await render({ version: 1, updatedAt: null, paymentUrl: null, months: [{ month: '2026-11', supportYen: 0, actualExpenseYen: 100, estimatedExpenseYen: 50 }] });
-  assert.equal(els['finance-estimated-row'].hidden, false);
   assert.equal(els['finance-estimated-note'].hidden, false);
+  assert.equal(els['finance-rows'].children[0].children[1].textContent, '150円');
 });
 
-test('最新の月にまかなえた割合と残りを出し、過去の月は細い棒で並べる', async () => {
+test('最新の月にまかなえた割合と残りを出し、月ごとの表に並べる', async () => {
   const els = await render({ version: 1, updatedAt: null, paymentUrl: null, months: [
     { month: '2026-10', supportYen: 1500, actualExpenseYen: 7500, estimatedExpenseYen: 0 },
     { month: '2026-11', supportYen: 0, actualExpenseYen: 10431, estimatedExpenseYen: 0 },
@@ -61,11 +61,12 @@ test('最新の月にまかなえた割合と残りを出し、過去の月は�
   assert.equal(els['coverage-percent'].textContent, '0.0%');
   assert.equal(els['coverage-fill'].style.width, '0%');
   assert.match(els['coverage-remaining'].textContent, /あと 10,431円/);
-  assert.equal(els['finance-months'].children.length, 2); // 最新の月も一覧に入る
-  const past = els['finance-months'].children[1];
-  assert.equal(past.children[0].children[0].textContent, '2026年10月');
-  assert.equal(past.children[0].children[1].textContent, '20.0%');
-  assert.equal(past.children[1].children[0].style.width, '20%');
+  const rows = els['finance-rows'].children;
+  assert.equal(rows.length, 2); // 新しい月から
+  assert.deepEqual(rows[1].children.map((c) => c.textContent), ['2026年10月', '7,500円', '1,500円', '20.0%']);
+  assert.equal(rows[1].children[1].className, 'num');
+  const total = els['finance-total-row'].children[0].children.map((c) => c.textContent);
+  assert.deepEqual(total, ['2026年10月からの合計', '17,931円', '1,500円', '8.3%']);
 });
 
 test('運営費を超えたら割合は 100% 超、棒は 100% で止める', async () => {
@@ -99,7 +100,9 @@ test('月ごとの実費の内訳を並べる', async () => {
       { label: 'Blacksmith', yen: 200 },
     ] },
   ] });
-  const list = els['finance-months'].children[0].children[3];
+  const details = els['finance-details'].children[0];
+  assert.match(details.children[0].textContent, /2026年11月の内訳（運営費 600円）/);
+  const list = details.children[1];
   assert.equal(list.children.length, 2);
   assert.equal(list.children[0].children[0].textContent, 'Supabase（データベース）');
   assert.equal(list.children[0].children[1].textContent, '400円');
@@ -119,7 +122,7 @@ test('合計の見出しに一番古い月を出す', async () => {
     { month: '2026-11', supportYen: 0, actualExpenseYen: 100, estimatedExpenseYen: 0 },
     { month: '2026-05', supportYen: 0, actualExpenseYen: 100, estimatedExpenseYen: 0 },
   ] });
-  assert.equal(els['finance-total-label'].textContent, '2026年5月からの合計');
+  assert.equal(els['finance-total-row'].children[0].children[0].textContent, '2026年5月からの合計');
 });
 
 const MONTHLY = [
@@ -149,17 +152,15 @@ test('毎月の応援のリンクやポータルが Stripe 以外なら全体を
   assert.match(badPortal['support-payment-status'].textContent, /確認できません/);
 });
 
-test('応援の受付開始前の月は割合と棒を出さず「開発者が負担」と出す', async () => {
+test('応援の受付開始前の月は割合ではなく「開発者が負担」と出す', async () => {
   const els = await render({ version: 1, updatedAt: null, paymentUrl: null, supportStartMonth: '2026-11', months: [
     { month: '2026-11', supportYen: 96, actualExpenseYen: 13949, estimatedExpenseYen: 0 },
     { month: '2026-10', supportYen: 0, actualExpenseYen: 9010, estimatedExpenseYen: 0 },
   ] });
-  const [nov, oct] = els['finance-months'].children;
-  assert.equal(nov.children[0].children[1].textContent, '0.6%');
-  assert.equal(nov.children.length, 3); // 見出し・棒・金額
-  assert.equal(oct.children[0].children[1].textContent, '開発者が負担');
-  assert.equal(oct.children.length, 2); // 見出し・金額 (棒なし)
-  assert.equal(oct.children[1].textContent, '運営費 9,010円');
+  const [nov, oct] = els['finance-rows'].children;
+  assert.equal(nov.children[3].textContent, '0.6%');
+  assert.equal(oct.children[3].textContent, '開発者が負担');
+  assert.equal(oct.children[1].textContent, '9,010円');
   assert.match(els['support-start-note'].textContent, /2026年11月から始めました/);
   assert.equal(els['support-start-note'].hidden, false);
 });
