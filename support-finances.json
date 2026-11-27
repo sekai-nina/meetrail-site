@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-26",
+  "updatedAt": "2026-11-27",
   "paymentUrl": "https://buy.stripe.com/5kQ9AV4MA2ElfUPgKh5os0g",
   "supportStartMonth": "2026-11",
   "monthlyPayments": [
@@ -119,7 +119,7 @@
     },
     {
       "month": "2026-11",
-      "supportYen": 384,
+      "supportYen": 2305,
       "actualExpenseYen": 13949,
       "estimatedExpenseYen": 0,
       "items": [
