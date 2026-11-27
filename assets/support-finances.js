@@ -89,14 +89,8 @@
     return Object.values(total).every(Number.isSafeInteger) && Number.isSafeInteger(total.actualExpenseYen + total.estimatedExpenseYen);
   }) && (data.updatedAt === null || /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(data.updatedAt));
   if (!isValid) { byId('finance-status').textContent = '収支を表示できませんでした。公開データを確認しています。'; return; }
-  byId('finance-support').textContent = money(total.supportYen);
-  byId('finance-actual').textContent = money(total.actualExpenseYen);
-  // 概算が無い (= 0 円) ときは行ごと出さない (= 「AI 代は 0 円」と読ませない)
-  if (total.estimatedExpenseYen > 0) {
-    byId('finance-estimated').textContent = money(total.estimatedExpenseYen);
-    byId('finance-estimated-row').hidden = false;
-    byId('finance-estimated-note').hidden = false;
-  }
+  // 概算があるときだけ「運営費は実費と概算の合計」と書く (= 「AI 代は 0 円」と読ませない)
+  if (total.estimatedExpenseYen > 0) byId('finance-estimated-note').hidden = false;
   const sorted = [...data.months].sort((a, b) => b.month.localeCompare(a.month));
   // 最新の月は、運営費のうち応援でまかなえた割合を大きく出す
   const latest = sorted[0];
@@ -108,51 +102,63 @@
   byId('coverage-amounts').textContent = `応援金 ${money(latest.supportYen)} ／ 運営費 ${money(latestCoverage.expenseYen)}`;
   byId('coverage-remaining').textContent = coverageMessage(latestCoverage, latestLabel);
   byId('coverage').hidden = false;
-  // 月ごとの一覧 (= 合計の内訳。最新の月も含める) は細い棒で並べる
+  // 月ごとの表
+  const cell = (tag, text, className) => {
+    const el = document.createElement(tag);
+    el.textContent = text;
+    if (className) el.className = className;
+    if (tag === 'th') el.setAttribute('scope', 'row');
+    return el;
+  };
+  // 応援の受付開始前の月は、割合ではなく「開発者が負担」と出す
+  const percentText = (row) => {
+    if (supportStartMonth !== null && row.month < supportStartMonth) return '開発者が負担';
+    const { percent } = coverageOf(row);
+    return percent === null ? '—' : pct(percent);
+  };
   for (const row of sorted) {
-    const coverage = coverageOf(row);
-    // 応援の受付開始前の月は、割合ではなく「開発者が負担」と出す (= 0% の棒を並べない)
-    const isBeforeStart = supportStartMonth !== null && row.month < supportStartMonth;
-    const item = document.createElement('div');
-    item.className = 'past-month';
-    const head = document.createElement('p');
-    head.className = 'past-month__head';
-    const monthLabel = document.createElement('span');
-    monthLabel.textContent = yearMonth(row.month);
-    const percentLabel = document.createElement('span');
-    percentLabel.textContent = isBeforeStart ? '開発者が負担' : coverage.percent === null ? '—' : pct(coverage.percent);
-    head.append(monthLabel, percentLabel);
-    const bar = document.createElement('div');
-    bar.className = 'coverage__bar coverage__bar--thin';
-    const fill = document.createElement('span');
-    fill.className = 'coverage__fill';
-    bar.append(fill);
-    setBar(bar, fill, coverage.barPercent);
-    const amounts = document.createElement('p');
-    amounts.className = 'past-month__amounts';
-    amounts.textContent = isBeforeStart ? `運営費 ${money(coverage.expenseYen)}` : `応援金 ${money(row.supportYen)} ／ 運営費 ${money(coverage.expenseYen)}`;
-    if (isBeforeStart) item.append(head, amounts);
-    else item.append(head, bar, amounts);
-    if (row.items?.length) {
-      const list = document.createElement('ul');
-      list.className = 'past-month__items';
-      for (const expense of row.items) {
-        const li = document.createElement('li');
-        const name = document.createElement('span');
-        name.className = 'past-month__item-label';
-        name.textContent = expense.detail ? `${expense.label}（${expense.detail}）` : expense.label;
-        const yen = document.createElement('span');
-        yen.textContent = money(expense.yen);
-        li.append(name, yen);
-        list.append(li);
-      }
-      item.append(list);
+    const tr = document.createElement('tr');
+    tr.append(
+      cell('th', yearMonth(row.month)),
+      cell('td', money(coverageOf(row).expenseYen), 'num'),
+      cell('td', money(row.supportYen), 'num'),
+      cell('td', percentText(row), 'num')
+    );
+    byId('finance-rows').append(tr);
+  }
+  // 合計 (一番古い月から)
+  const totalRow = document.createElement('tr');
+  const totalExpense = total.actualExpenseYen + total.estimatedExpenseYen;
+  const totalCoverage = coverageOf({ supportYen: total.supportYen, actualExpenseYen: totalExpense, estimatedExpenseYen: 0 });
+  totalRow.append(
+    cell('th', `${yearMonth(sorted.at(-1).month)}からの合計`),
+    cell('td', money(totalExpense), 'num'),
+    cell('td', money(total.supportYen), 'num'),
+    cell('td', totalCoverage.percent === null ? '—' : pct(totalCoverage.percent), 'num')
+  );
+  byId('finance-total-row').append(totalRow);
+  // 月ごとの内訳は折りたたむ (= 表を主にする)
+  for (const row of sorted) {
+    if (!row.items?.length) continue;
+    const details = document.createElement('details');
+    details.className = 'finance-detail';
+    const summary = document.createElement('summary');
+    summary.textContent = `${yearMonth(row.month)}の内訳（運営費 ${money(coverageOf(row).expenseYen)}）`;
+    const list = document.createElement('ul');
+    list.className = 'finance-detail__items';
+    for (const expense of row.items) {
+      const li = document.createElement('li');
+      const name = document.createElement('span');
+      name.textContent = expense.detail ? `${expense.label}（${expense.detail}）` : expense.label;
+      const yen = document.createElement('span');
+      yen.textContent = money(expense.yen);
+      li.append(name, yen);
+      list.append(li);
     }
-    byId('finance-months').append(item);
+    details.append(summary, list);
+    byId('finance-details').append(details);
   }
   byId('finance-updated').textContent = data.updatedAt ? `更新日 ${date(data.updatedAt)}` : '';
-  // 合計の期間をはっきりさせる (= 一番古い月から)
-  byId('finance-total-label').textContent = `${yearMonth(sorted.at(-1).month)}からの合計`;
   byId('finance-status').hidden = true;
   byId('finance-content').hidden = false;
 })();

@@ -889,7 +889,6 @@ a:hover {
   font-size: 14px;
 }
 
-.finance-table td { text-align: right; font-variant-numeric: tabular-nums; }
 
 .coverage { margin: 24px 0 8px; }
 .doc .coverage__label, .doc .coverage__note { color: var(--ink-muted); font-size: 0.875rem; margin: 0; }
@@ -898,12 +897,6 @@ a:hover {
 .coverage__bar--thin { height: 6px; }
 .coverage__fill { display: block; height: 100%; border-radius: 999px; background: var(--primary); }
 .doc .coverage__amounts { font-size: 0.875rem; margin: 8px 0 0; }
-.past-month { margin-top: 16px; }
-.doc .past-month__head { color: var(--ink); display: flex; justify-content: space-between; font-weight: 700; font-size: 0.875rem; margin: 0 0 4px; }
-.doc .past-month__amounts { color: var(--ink-muted); font-size: 0.8125rem; margin: 4px 0 0; }
-.doc .past-month__items { list-style: none; margin: 4px 0 0; padding: 0 0 0 12px; font-size: 0.8125rem; }
-.doc .past-month__items li { display: flex; justify-content: space-between; gap: 16px; margin: 2px 0; }
-.past-month__item-label { color: var(--ink-muted); }
 .support-monthly { margin: 16px 0 0; }
 .doc .support-monthly__label { font-size: 0.875rem; color: var(--ink-muted); margin: 0 0 8px; }
 .doc .support-monthly__links { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
@@ -912,3 +905,11 @@ a:hover {
 @media (max-width: 600px) {
   .site-nav { gap: 10px; font-size: 13px; }
 }
+/* 月ごとの収支の表。金額と割合は右寄せで桁を揃える */
+.doc .finance-months td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.doc .finance-months tfoot th, .doc .finance-months tfoot td { color: var(--ink); font-weight: 700; }
+.doc .finance-details-head { font-size: 1rem; margin: 32px 0 8px; }
+.finance-detail { border-bottom: 1px solid var(--border); padding: 8px 0; }
+.finance-detail summary { cursor: pointer; font-size: 0.875rem; font-weight: 700; color: var(--ink); }
+.doc .finance-detail__items { list-style: none; margin: 8px 0 0; padding: 0 0 0 12px; font-size: 0.8125rem; }
+.doc .finance-detail__items li { display: flex; justify-content: space-between; gap: 16px; margin: 2px 0; color: var(--ink-muted); }
